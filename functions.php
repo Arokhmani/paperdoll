@@ -16,6 +16,7 @@ define( 'PAPERDOLL_VERSION',   '1.0.0' );
 define( 'PAPERDOLL_DIR',       get_template_directory() );
 define( 'PAPERDOLL_URL',       get_template_directory_uri() );
 define( 'PAPERDOLL_ASSETS',    PAPERDOLL_URL . '/assets' );
+define( 'PAPERDOLL_ADMIN_DIR', PAPERDOLL_DIR . '/admin' );
 define( 'PAPERDOLL_WA_NUMBER', get_option( 'paperdoll_wa_number', '628385448811' ) );
 
 // ============================================================
@@ -68,26 +69,33 @@ function paperdoll_enqueue_assets() {
         PAPERDOLL_VERSION
     );
 
-    // Script Utama
-    wp_enqueue_script(
-        'paperdoll-main',
-        PAPERDOLL_ASSETS . '/js/main.js',
-        [],
-        PAPERDOLL_VERSION,
-        true   // Di footer
-    );
+    if ( file_exists( PAPERDOLL_DIR . '/assets/js/main.js' ) ) {
+        // Script Utama
+        wp_enqueue_script(
+            'paperdoll-main',
+            PAPERDOLL_ASSETS . '/js/main.js',
+            [],
+            PAPERDOLL_VERSION,
+            true   // Di footer
+        );
+    }
 
     // Kirim data PHP ke JavaScript
-    wp_localize_script( 'paperdoll-main', 'paperdollData', [
-        'ajaxUrl'   => admin_url( 'admin-ajax.php' ),
-        'nonce'     => wp_create_nonce( 'paperdoll_nonce' ),
-        'waNumber'  => PAPERDOLL_WA_NUMBER,
-        'siteName'  => get_bloginfo( 'name' ),
-        'siteUrl'   => home_url(),
-        'themeUrl'  => PAPERDOLL_URL,
-        'currency'  => 'Rp',
-        'products'  => paperdoll_get_products_json(),
-    ] );
+    if ( wp_script_is( 'paperdoll-main', 'enqueued' ) ) {
+        wp_localize_script( 'paperdoll-main', 'paperdollData', [
+            'ajaxUrl'            => admin_url( 'admin-ajax.php' ),
+            'nonce'              => wp_create_nonce( 'paperdoll_nonce' ),
+            'waNumber'           => PAPERDOLL_WA_NUMBER,
+            'siteName'           => get_bloginfo( 'name' ),
+            'siteUrl'            => home_url(),
+            'themeUrl'           => PAPERDOLL_URL,
+            'currency'           => 'Rp',
+            'products'           => paperdoll_get_products_json(),
+            'activeCoupons'      => paperdoll_get_active_coupons(),
+            'carouselProductIds' => paperdoll_get_carousel_product_ids(),
+            'checkoutTemplate'   => get_option( 'paperdoll_whatsapp_template', '' ),
+        ] );
+    }
 }
 add_action( 'wp_enqueue_scripts', 'paperdoll_enqueue_assets' );
 
@@ -602,3 +610,65 @@ function paperdoll_dequeue_block_styles() {
     wp_dequeue_style( 'classic-theme-styles' );
 }
 add_action( 'wp_enqueue_scripts', 'paperdoll_dequeue_block_styles', 100 );
+
+// ============================================================
+// COUPON & CAROUSEL HELPERS
+// ============================================================
+function paperdoll_get_active_coupons() {
+    global $wpdb;
+
+    $table_name = $wpdb->prefix . 'paperdoll_coupons';
+    $today      = current_time( 'Y-m-d' );
+
+    if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) ) !== $table_name ) {
+        return [];
+    }
+
+    $rows = $wpdb->get_results(
+        $wpdb->prepare(
+            "SELECT id, code, discount_type, discount_value, min_purchase, starts_at, ends_at, usage_limit_per_user
+             FROM {$table_name}
+             WHERE is_active = %d
+               AND (starts_at IS NULL OR starts_at = '' OR starts_at <= %s)
+               AND (ends_at IS NULL OR ends_at = '' OR ends_at >= %s)
+             ORDER BY created_at DESC",
+            1,
+            $today,
+            $today
+        ),
+        ARRAY_A
+    );
+
+    return is_array( $rows ) ? $rows : [];
+}
+
+function paperdoll_get_carousel_product_ids() {
+    $ids = get_option( 'paperdoll_carousel_product_ids', [] );
+    if ( ! is_array( $ids ) ) {
+        return [];
+    }
+
+    return array_values( array_filter( array_map( 'absint', $ids ) ) );
+}
+
+// ============================================================
+// ADMIN DASHBOARD MODULES
+// ============================================================
+if ( is_admin() ) {
+    $paperdoll_admin_modules = [
+        PAPERDOLL_ADMIN_DIR . '/dashboard-main.php',
+        PAPERDOLL_ADMIN_DIR . '/products-management.php',
+        PAPERDOLL_ADMIN_DIR . '/coupons-management.php',
+        PAPERDOLL_ADMIN_DIR . '/banners-management.php',
+        PAPERDOLL_ADMIN_DIR . '/carousel-management.php',
+        PAPERDOLL_ADMIN_DIR . '/categories-management.php',
+        PAPERDOLL_ADMIN_DIR . '/woocommerce-integration.php',
+        PAPERDOLL_ADMIN_DIR . '/checkout-whatsapp.php',
+    ];
+
+    foreach ( $paperdoll_admin_modules as $module_file ) {
+        if ( file_exists( $module_file ) ) {
+            require_once $module_file;
+        }
+    }
+}

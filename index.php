@@ -55,24 +55,49 @@ get_header();
             </div>
         </div>
 
+        <?php $active_coupons = paperdoll_get_active_coupons(); ?>
+        <?php if ( ! empty( $active_coupons ) ) : ?>
+        <section class="pills-scroll" aria-label="<?php esc_attr_e( 'Kupon Aktif', 'paperdoll-shop' ); ?>">
+            <?php foreach ( array_slice( $active_coupons, 0, 5 ) as $coupon ) : ?>
+                <div class="pill-item">
+                    <?php echo pd_icon('ticket','','14'); ?>
+                    <strong><?php echo esc_html( $coupon['code'] ); ?></strong>
+                    <span style="margin-left:6px;">
+                        <?php echo esc_html( 'percent' === $coupon['discount_type'] ? $coupon['discount_value'] . '%' : 'Rp ' . number_format( (float) $coupon['discount_value'], 0, ',', '.' ) ); ?>
+                    </span>
+                </div>
+            <?php endforeach; ?>
+        </section>
+        <?php endif; ?>
+
         <!-- KATEGORI ICONS -->
         <section class="categories-container">
             <div class="categories-scroll">
                 <?php
-                $cats = [
-                    ['slug'=>'all',       'icon'=>'grid',   'label'=>__('Semua Produk','paperdoll-shop')],
-                    ['slug'=>'toca',      'icon'=>'home',   'label'=>__('Rumah Toca','paperdoll-shop')],
-                    ['slug'=>'anime',     'icon'=>'female', 'label'=>__('Gaya Anime','paperdoll-shop')],
-                    ['slug'=>'hijab',     'icon'=>'heart',  'label'=>__('Hijab Imut','paperdoll-shop')],
-                    ['slug'=>'aksesoris', 'icon'=>'shirt',  'label'=>__('Baju & Aksesoris','paperdoll-shop')],
-                    ['slug'=>'viral',     'icon'=>'flame',  'label'=>__('Paling Viral','paperdoll-shop')],
-                ];
-                foreach ($cats as $cat) : ?>
-                <div class="cat-item" onclick="filterCategory('<?php echo esc_js($cat['slug']); ?>')">
+                $cats = get_terms( [
+                    'taxonomy'   => 'paperdoll_kategori',
+                    'hide_empty' => false,
+                ] );
+                ?>
+                <div class="cat-item" onclick="filterCategory('all')">
                     <div class="cat-icon-wrapper">
-                        <?php echo pd_icon($cat['icon'],'','22'); ?>
+                        <?php echo pd_icon('grid','','22'); ?>
                     </div>
-                    <span><?php echo esc_html($cat['label']); ?></span>
+                    <span><?php esc_html_e( 'Semua Produk', 'paperdoll-shop' ); ?></span>
+                </div>
+                <?php foreach ( $cats as $cat ) :
+                    $icon_id = (int) get_term_meta( $cat->term_id, '_paperdoll_cat_icon_id', true );
+                    $label   = get_term_meta( $cat->term_id, '_paperdoll_cat_label', true );
+                    ?>
+                <div class="cat-item" onclick="filterCategory('<?php echo esc_js( $cat->slug ); ?>')">
+                    <div class="cat-icon-wrapper">
+                        <?php if ( $icon_id ) : ?>
+                            <?php echo wp_get_attachment_image( $icon_id, 'thumbnail' ); ?>
+                        <?php else : ?>
+                            <?php echo pd_icon('grid','','22'); ?>
+                        <?php endif; ?>
+                    </div>
+                    <span><?php echo esc_html( $label ? $label : $cat->name ); ?></span>
                 </div>
                 <?php endforeach; ?>
             </div>
