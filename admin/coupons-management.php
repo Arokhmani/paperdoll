@@ -102,7 +102,7 @@ if ( ! function_exists( 'paperdoll_render_coupons_management_page' ) ) {
 	function paperdoll_render_coupons_management_page() {
 		global $wpdb;
 		$table_name = $wpdb->prefix . 'paperdoll_coupons';
-		$coupons    = $wpdb->get_results( "SELECT * FROM {$table_name} ORDER BY created_at DESC" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$coupons    = $wpdb->get_results( "SELECT id, code, discount_type, discount_value, min_purchase, starts_at, ends_at, usage_limit_per_user, is_active FROM {$table_name} ORDER BY created_at DESC" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$categories = get_terms(
 			[
 				'taxonomy'   => 'paperdoll_kategori',

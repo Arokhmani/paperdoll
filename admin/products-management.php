@@ -90,7 +90,7 @@ if ( ! function_exists( 'paperdoll_render_products_management_page' ) ) {
 			[
 				'post_type'      => 'paperdoll_produk',
 				'post_status'    => 'any',
-				'posts_per_page' => 100,
+				'posts_per_page' => (int) apply_filters( 'paperdoll_admin_products_posts_per_page', 100 ),
 				'orderby'        => 'date',
 				'order'          => 'DESC',
 			]

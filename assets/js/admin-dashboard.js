@@ -43,14 +43,20 @@ if ($('#paperdoll-carousel-list input[value="' + productId + '"]').length > 0) {
 return;
 }
 
-const row = [
-'<li>',
-'<input type="hidden" name="carousel_product_ids[]" value="' + productId + '">',
-'<span>' + title + '</span>',
-'<button type="button" class="button-link-delete paperdoll-remove-sort-item">×</button>',
-'</li>'
-].join('');
-$('#paperdoll-carousel-list').append(row);
+const $li = $('<li/>');
+const $input = $('<input/>', {
+type: 'hidden',
+name: 'carousel_product_ids[]',
+value: productId
+});
+const $title = $('<span/>').text(String(title));
+const $remove = $('<button/>', {
+type: 'button',
+class: 'button-link-delete paperdoll-remove-sort-item',
+text: '×'
+});
+$li.append($input, $title, $remove);
+$('#paperdoll-carousel-list').append($li);
 });
 
 $(document).on('click', '.paperdoll-remove-sort-item', function () {

@@ -624,6 +624,7 @@ function paperdoll_get_active_coupons() {
         return [];
     }
 
+    // Table name is generated from trusted $wpdb->prefix and static suffix.
     $rows = $wpdb->get_results(
         $wpdb->prepare(
             "SELECT id, code, discount_type, discount_value, min_purchase, starts_at, ends_at, usage_limit_per_user
