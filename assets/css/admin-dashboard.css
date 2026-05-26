@@ -1,0 +1,83 @@
+.paperdoll-admin-wrap .paperdoll-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+gap: 12px;
+margin: 16px 0 24px;
+}
+
+.paperdoll-admin-wrap .paperdoll-card {
+display: block;
+background: #fff;
+padding: 14px;
+border: 1px solid #e2e4e7;
+border-radius: 8px;
+text-decoration: none;
+}
+
+.paperdoll-admin-wrap .paperdoll-admin-form {
+background: #fff;
+border: 1px solid #e2e4e7;
+border-radius: 8px;
+padding: 16px;
+margin: 16px 0;
+}
+
+.paperdoll-admin-wrap .paperdoll-form-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+gap: 12px;
+}
+
+.paperdoll-admin-wrap .paperdoll-form-grid label {
+display: flex;
+flex-direction: column;
+gap: 6px;
+}
+
+.paperdoll-admin-wrap .paperdoll-form-grid input,
+.paperdoll-admin-wrap .paperdoll-form-grid select,
+.paperdoll-admin-wrap .paperdoll-form-grid textarea {
+width: 100%;
+}
+
+.paperdoll-admin-wrap .paperdoll-inline-check {
+flex-direction: row !important;
+align-items: center;
+margin-top: 22px;
+}
+
+.paperdoll-admin-wrap .paperdoll-image-preview img {
+max-width: 100%;
+height: auto;
+border: 1px solid #dcdcde;
+margin-top: 8px;
+}
+
+.paperdoll-admin-wrap .paperdoll-sortable {
+list-style: none;
+padding: 0;
+margin: 10px 0;
+}
+
+.paperdoll-admin-wrap .paperdoll-sortable li {
+padding: 10px;
+margin-bottom: 8px;
+background: #f6f7f7;
+border: 1px solid #dcdcde;
+cursor: move;
+display: flex;
+justify-content: space-between;
+gap: 10px;
+align-items: center;
+}
+
+.paperdoll-admin-wrap .paperdoll-badge {
+padding: 2px 8px;
+border-radius: 999px;
+background: #ddd;
+}
+
+.paperdoll-admin-wrap .paperdoll-badge.is-on {
+background: #0a7f42;
+color: #fff;
+}
